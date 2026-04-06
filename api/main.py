@@ -62,7 +62,7 @@ def ejecutar_codigo(codigo: str, timeout: int = 5):
 
 @app.get("/")
 def root():
-    return {"mensaje": "Plataforma de Retos — API funcionando"}
+    return {"mensaje": "Plataforma de Retos — API funcionando v2.0"}
 
 @app.get("/health")
 def health():
