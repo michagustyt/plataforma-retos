@@ -1,0 +1,6 @@
+redis_data/
+*.rdb
+__pycache__/
+*.pyc
+*.deb
+.env

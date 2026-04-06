@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plataforma de Retos</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:      #0d0f14;
+    --bg2:     #13151c;
+    --bg3:     #1a1d27;
+    --border:  #ffffff12;
+    --accent:  #00e5a0;
+    --accent2: #0090ff;
+    --danger:  #ff4d6a;
+    --text:    #e2e8f0;
+    --muted:   #64748b;
+    --mono:    'JetBrains Mono', monospace;
+    --sans:    'Syne', sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    height: 52px;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .logo {
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: -.3px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .4; }
+  }
+
+  .badge {
+    font-size: 11px;
+    font-family: var(--mono);
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: var(--accent)18;
+    color: var(--accent);
+    border: 1px solid var(--accent)40;
+  }
+
+  .main {
+    display: grid;
+    grid-template-columns: 280px 1fr 320px;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-title {
+    padding: 16px 20px 10px;
+    font-size: 10px;
+    font-family: var(--mono);
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .reto-item {
+    padding: 14px 20px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    transition: background .15s;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .reto-item:hover { background: var(--bg3); }
+
+  .reto-item.active {
+    background: var(--accent)0d;
+    border-left: 2px solid var(--accent);
+    padding-left: 18px;
+  }
+
+  .reto-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+
+  .reto-item.active .reto-num { color: var(--accent); }
+
+  .reto-info { flex: 1; min-width: 0; }
+
+  .reto-name {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .reto-desc {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .reto-status {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-top: 4px;
+    flex-shrink: 0;
+    background: var(--border);
+  }
+
+  .reto-status.ok { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+  .reto-status.fail { background: var(--danger); }
+
+  /* EDITOR */
+  .editor-area {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .editor-header {
+    padding: 10px 20px;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+
+  .editor-tabs {
+    display: flex;
+    gap: 4px;
+  }
+
+  .tab {
+    padding: 4px 14px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-family: var(--mono);
+    color: var(--muted);
+    cursor: pointer;
+    background: transparent;
+    border: 1px solid transparent;
+  }
+
+  .tab.active {
+    color: var(--text);
+    background: var(--bg3);
+    border-color: var(--border);
+  }
+
+  #monaco-container {
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .editor-footer {
+    padding: 10px 20px;
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+
+  .hint {
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--muted);
+  }
+
+  .run-btn {
+    padding: 8px 24px;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 6px;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity .15s, transform .1s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .run-btn:hover { opacity: .85; }
+  .run-btn:active { transform: scale(.97); }
+  .run-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+  .run-btn .spinner {
+    width: 12px; height: 12px;
+    border: 2px solid #00000040;
+    border-top-color: #000;
+    border-radius: 50%;
+    animation: spin .6s linear infinite;
+    display: none;
+  }
+
+  .run-btn.loading .spinner { display: block; }
+  .run-btn.loading .btn-text { display: none; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* PANEL DERECHO */
+  .result-panel {
+    background: var(--bg2);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .panel-title {
+    padding: 14px 20px;
+    font-size: 10px;
+    font-family: var(--mono);
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .reto-detail {
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .reto-detail h2 {
+    font-size: 16px;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+
+  .reto-detail p {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+    font-family: var(--mono);
+  }
+
+  .result-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+  }
+
+  .result-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 8px;
+  }
+
+  .result-empty-icon {
+    font-size: 32px;
+    opacity: .3;
+  }
+
+  .result-empty p {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: var(--mono);
+  }
+
+  .result-card {
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    margin-bottom: 12px;
+  }
+
+  .result-card-header {
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .result-card-header.aprobado {
+    background: var(--accent)18;
+    color: var(--accent);
+    border-bottom: 1px solid var(--accent)30;
+  }
+
+  .result-card-header.reprobado {
+    background: var(--danger)18;
+    color: var(--danger);
+    border-bottom: 1px solid var(--danger)30;
+  }
+
+  .result-card-header.error {
+    background: #f59e0b18;
+    color: #f59e0b;
+    border-bottom: 1px solid #f59e0b30;
+  }
+
+  .result-card-body {
+    padding: 12px 14px;
+    background: var(--bg3);
+  }
+
+  .result-label {
+    font-size: 10px;
+    font-family: var(--mono);
+    color: var(--muted);
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .result-code {
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--text);
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+
+  .score-bar {
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .score-label {
+    font-size: 10px;
+    font-family: var(--mono);
+    color: var(--muted);
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .score-dots {
+    display: flex;
+    gap: 6px;
+  }
+
+  .score-dot {
+    flex: 1;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border);
+    transition: background .3s;
+  }
+
+  .score-dot.ok { background: var(--accent); }
+  .score-dot.fail { background: var(--danger); }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-dot"></div>
+    Plataforma de Retos
+  </div>
+  <span class="badge">Python 3.11</span>
+</header>
+
+<div class="main">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-title">Retos disponibles</div>
+    <div id="reto-list"></div>
+  </div>
+
+  <!-- EDITOR -->
+  <div class="editor-area">
+    <div class="editor-header">
+      <div class="editor-tabs">
+        <div class="tab active">solution.py</div>
+      </div>
+      <span id="editor-status" style="font-size:11px;font-family:var(--mono);color:var(--muted)">Selecciona un reto</span>
+    </div>
+    <div id="monaco-container"></div>
+    <div class="editor-footer">
+      <span class="hint">Ctrl+Enter para ejecutar</span>
+      <button class="run-btn" id="run-btn" onclick="evaluar()">
+        <div class="spinner"></div>
+        <span class="btn-text">▶ Ejecutar</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- PANEL RESULTADO -->
+  <div class="result-panel">
+    <div class="panel-title">Resultado</div>
+    <div class="reto-detail" id="reto-detail">
+      <h2 style="opacity:.4">— Sin reto seleccionado —</h2>
+      <p>Elige un reto de la lista para comenzar.</p>
+    </div>
+    <div class="result-content" id="result-content">
+      <div class="result-empty">
+        <div class="result-empty-icon">⌥</div>
+        <p>Ejecuta tu código para ver el resultado</p>
+      </div>
+    </div>
+    <div class="score-bar">
+      <div class="score-label">Progreso</div>
+      <div class="score-dots" id="score-dots"></div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+<script>
+let editor, retoActual = null;
+const resultados = {};
+
+require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' } });
+require(['vs/editor/editor.main'], function() {
+  editor = monaco.editor.create(document.getElementById('monaco-container'), {
+    value: '# Selecciona un reto para comenzar\n',
+    language: 'python',
+    theme: 'vs-dark',
+    fontSize: 14,
+    fontFamily: "'JetBrains Mono', monospace",
+    minimap: { enabled: false },
+    scrollBeyondLastLine: false,
+    lineNumbers: 'on',
+    renderLineHighlight: 'line',
+    padding: { top: 16, bottom: 16 },
+    automaticLayout: true,
+  });
+
+  editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, evaluar);
+  cargarRetos();
+});
+
+async function cargarRetos() {
+  const res = await fetch('/retos');
+  const retos = await res.json();
+  const lista = document.getElementById('reto-list');
+  const dots = document.getElementById('score-dots');
+  lista.innerHTML = '';
+  dots.innerHTML = '';
+  retos.forEach(r => {
+    const item = document.createElement('div');
+    item.className = 'reto-item';
+    item.id = `reto-${r.id}`;
+    item.innerHTML = `
+      <div class="reto-num">0${r.id}</div>
+      <div class="reto-info">
+        <div class="reto-name">${r.titulo}</div>
+        <div class="reto-desc">${r.descripcion}</div>
+      </div>
+      <div class="reto-status" id="status-${r.id}"></div>`;
+    item.onclick = () => seleccionarReto(r);
+    lista.appendChild(item);
+
+    const dot = document.createElement('div');
+    dot.className = 'score-dot';
+    dot.id = `dot-${r.id}`;
+    dots.appendChild(dot);
+  });
+}
+
+function seleccionarReto(r) {
+  retoActual = r;
+  document.querySelectorAll('.reto-item').forEach(el => el.classList.remove('active'));
+  document.getElementById(`reto-${r.id}`).classList.add('active');
+  document.getElementById('editor-status').textContent = `Reto ${r.id} / 5`;
+  document.getElementById('reto-detail').innerHTML = `
+    <h2>${r.titulo}</h2>
+    <p>${r.descripcion}</p>`;
+  document.getElementById('result-content').innerHTML = `
+    <div class="result-empty">
+      <div class="result-empty-icon">▶</div>
+      <p>Escribe tu solución y ejecuta</p>
+    </div>`;
+  editor.setValue(`# Reto ${r.id}: ${r.titulo}\n\n`);
+  editor.focus();
+  editor.setPosition({ lineNumber: 3, column: 1 });
+}
+
+async function evaluar() {
+  if (!retoActual) return;
+  const btn = document.getElementById('run-btn');
+  btn.classList.add('loading');
+  btn.disabled = true;
+  try {
+    const res = await fetch('/evaluar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reto_id: retoActual.id, codigo: editor.getValue() })
+    });
+    const data = await res.json();
+    mostrarResultado(data);
+    resultados[retoActual.id] = data.resultado;
+    actualizarProgreso();
+  } catch(e) {
+    mostrarError('Error al conectar con el servidor');
+  }
+  btn.classList.remove('loading');
+  btn.disabled = false;
+}
+
+function mostrarResultado(data) {
+  const rc = document.getElementById('result-content');
+  const icons = { aprobado: '✓', reprobado: '✗', error: '⚠' };
+  const labels = { aprobado: '¡Correcto!', reprobado: 'Incorrecto', error: 'Error de ejecución' };
+  let html = `<div class="result-card">
+    <div class="result-card-header ${data.resultado}">
+      <span>${icons[data.resultado]}</span>
+      <span>${labels[data.resultado]}</span>
+    </div>
+    <div class="result-card-body">`;
+  if (data.output !== undefined && data.output !== null) {
+    html += `<div class="result-label">Tu output</div>
+      <div class="result-code">${escHtml(data.output || '(vacío)')}</div>`;
+  }
+  if (data.esperado) {
+    html += `<div class="result-label" style="margin-top:12px">Esperado</div>
+      <div class="result-code" style="color:#00e5a0">${escHtml(data.esperado)}</div>`;
+  }
+  if (data.mensaje) {
+    html += `<div class="result-label">Detalle</div>
+      <div class="result-code" style="color:#f59e0b">${escHtml(data.mensaje)}</div>`;
+  }
+  html += `</div></div>`;
+  rc.innerHTML = html;
+
+  const statusEl = document.getElementById(`status-${retoActual.id}`);
+  if (statusEl) statusEl.className = `reto-status ${data.resultado === 'aprobado' ? 'ok' : 'fail'}`;
+}
+
+function mostrarError(msg) {
+  document.getElementById('result-content').innerHTML = `
+    <div class="result-card">
+      <div class="result-card-header error">⚠ Error de conexión</div>
+      <div class="result-card-body">
+        <div class="result-code" style="color:#f59e0b">${msg}</div>
+      </div>
+    </div>`;
+}
+
+function actualizarProgreso() {
+  Object.entries(resultados).forEach(([id, res]) => {
+    const dot = document.getElementById(`dot-${id}`);
+    if (dot) dot.className = `score-dot ${res === 'aprobado' ? 'ok' : 'fail'}`;
+  });
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
+</body>
+</html>
