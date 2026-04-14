@@ -15,24 +15,24 @@ RETOS = {
         "esperado": "Hola Mundo"
     },
     2: {
-        "titulo": "FizzBuzz",
-        "descripcion": "Imprime los números del 1 al 20. Múltiplos de 3 → 'Fizz', múltiplos de 5 → 'Buzz', múltiplos de ambos → 'FizzBuzz'.",
-        "esperado": "1\n2\nFizz\n4\nBuzz\nFizz\n7\n8\nFizz\nBuzz\n11\nFizz\n13\n14\nFizzBuzz\n16\n17\nFizz\n19\nBuzz"
+        "titulo": "Suma",
+        "descripcion": "Imprime el resultado de sumar 5 + 3",
+        "esperado": "8"
     },
     3: {
-        "titulo": "Palíndromo",
-        "descripcion": "Escribe una función es_palindromo(palabra) que retorne True si es palíndromo, False si no. Luego imprímela con: print(es_palindromo('racecar')) y print(es_palindromo('hello'))",
-        "esperado": "True\nFalse"
+        "titulo": "Área de rectángulo",
+        "descripcion": "Imprime el área de un rectángulo de 4 × 6",
+        "esperado": "24"
     },
     4: {
-        "titulo": "Fibonacci",
-        "descripcion": "Imprime los primeros 10 números de la serie Fibonacci, uno por línea.",
-        "esperado": "0\n1\n1\n2\n3\n5\n8\n13\n21\n34"
+        "titulo": "Celsius a Fahrenheit",
+        "descripcion": "Convierte 100°C a Fahrenheit e imprímelo. Fórmula: (C × 9/5) + 32",
+        "esperado": "212.0"
     },
     5: {
-        "titulo": "Ordenamiento",
-        "descripcion": "Ordena esta lista sin usar sorted() ni .sort(): [64, 34, 25, 12, 22, 11, 90]. Imprime los elementos separados por coma.",
-        "esperado": "11,12,22,25,34,64,90"
+        "titulo": "Conteo",
+        "descripcion": "Imprime los números del 1 al 5, uno por línea",
+        "esperado": "1\n2\n3\n4\n5"
     }
 }
 
