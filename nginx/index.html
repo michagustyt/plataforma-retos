@@ -488,6 +488,7 @@ require(['vs/editor/editor.main'], function() {
     renderLineHighlight: 'line',
     padding: { top: 16, bottom: 16 },
     automaticLayout: true,
+    accessibilitySupport: 'off'
   });
 
   editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, evaluar);
